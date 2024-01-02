@@ -1,0 +1,76 @@
+version: '3.8'
+
+volumes:
+  Postgresdb:
+    name: db
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../data/postgres
+
+  QdrantDB:
+    name: qdrantdb
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../data/qdrantdb
+
+  pgadminDB:
+    name: pgadmindb
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../data/pgadmindb
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: on-failure:5
+    ports:
+      - '5432:5432'
+    networks:
+      - dream
+    tty: true
+    volumes:
+      - QdrantDB:/var/lib/postgressql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: on-failure:5
+    ports:
+      - '5050:80'
+    tty: true
+    networks:
+      - dream
+    volumes:
+      - pgadminDB:/var/lib/postgresql/data
+
+  qdrant:
+    image: qdrant/qdrant
+    container_name: qdrant
+    volumes:
+      - ./qdrant:/app
+    networks:
+      - dream
+    ports:
+      - '6333:6333'
+
+  backend:
+    image: node:23-alpine
+    container_name: backend
+    build : ./backend
+    networks:
+      - dream
+    tty: true
+    volumes:
+      - ./backend:/app
+
+networks:
+  dream:
+    name: dream
+    driver: bridge
