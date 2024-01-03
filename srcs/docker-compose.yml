@@ -37,7 +37,8 @@ services:
     tty: true
     volumes:
       - QdrantDB:/var/lib/postgressql/data
-
+    env_file:
+      - ./env/postgres.env
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
@@ -49,6 +50,8 @@ services:
       - dream
     volumes:
       - pgadminDB:/var/lib/postgresql/data
+    env_file:
+      - ./env/pgadmin.env
 
   qdrant:
     image: qdrant/qdrant
